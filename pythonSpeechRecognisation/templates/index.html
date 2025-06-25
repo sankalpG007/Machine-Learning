@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎙️ Voice Command Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header>🧠 Voice to Text – AI Command Tool</header>
+
+  <div class="container">
+    <h2>🎤 Speak and See Magic</h2>
+
+    <label for="language">🌐 Choose Language:</label>
+    <select id="language">
+      <option value="en-IN">English (India)</option>
+      <option value="hi-IN">Hindi</option>
+      <option value="mr-IN">Marathi</option>
+    </select>
+
+    <div>
+      <button onclick="startRecognition()">▶️ Start Listening</button>
+      <button onclick="stopRecognition()">⏹️ Stop</button>
+      <button onclick="clearText()">🗑️ Clear</button>
+      <button onclick="copyText()">📋 Copy</button>
+    </div>
+
+    <div id="status" class="status">Status: Idle</div>
+
+    <div id="output" class="output-box">📝 Your speech will appear here...</div>
+  </div>
+
+  <script>
+    let recognition;
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+
+    function startRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        alert("Your browser does not support Speech Recognition!");
+        return;
+      }
+
+      const lang = document.getElementById("language").value;
+
+      recognition = new SpeechRecognition();
+      recognition.lang = lang;
+      recognition.interimResults = false;
+      recognition.continuous = true;
+
+      recognition.onstart = () => {
+        status.innerText = "🎧 Listening...";
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        output.innerText += "🗣️ " + transcript + "\n";
+      };
+
+      recognition.onerror = (event) => {
+        status.innerText = "❌ Error: " + event.error;
+      };
+
+      recognition.onend = () => {
+        status.innerText = "✅ Stopped Listening";
+      };
+
+      recognition.start();
+    }
+
+    function stopRecognition() {
+      if (recognition) {
+        recognition.stop();
+        status.innerText = "⏹️ Stopped by User";
+      }
+    }
+
+    function clearText() {
+      output.innerText = "📝 Your speech will appear here ->";
+      status.innerText = "Status: Idle";
+    }
+
+    function copyText() {
+      navigator.clipboard.writeText(output.innerText).then(() => {
+        alert("Copied to clipboard!");
+      });
+    }
+  </script>
+</body>
+</html>
